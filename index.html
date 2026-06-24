@@ -241,13 +241,13 @@
         <p class="muted">✦ Grupos máximos de 15 personas por recorrido</p>
       </div>
     </div>
-    <form class="form reveal d1" data-demo>
+    <form class="form reveal d1" data-demo data-table="contactos">
       <div class="row">
-        <div class="field"><label>Nombre</label><input type="text" required placeholder="Tu nombre"></div>
-        <div class="field"><label>Teléfono</label><input type="tel" placeholder="Tu teléfono"></div>
+        <div class="field"><label>Nombre</label><input name="nombre" type="text" required placeholder="Tu nombre"></div>
+        <div class="field"><label>Teléfono</label><input name="telefono" type="tel" placeholder="Tu teléfono"></div>
       </div>
-      <div class="field"><label>Correo</label><input type="email" required placeholder="tucorreo@ejemplo.com"></div>
-      <div class="field"><label>Mensaje</label><textarea placeholder="¿En qué podemos ayudarte?"></textarea></div>
+      <div class="field"><label>Correo</label><input name="correo" type="email" required placeholder="tucorreo@ejemplo.com"></div>
+      <div class="field"><label>Mensaje</label><textarea name="mensaje" placeholder="¿En qué podemos ayudarte?"></textarea></div>
       <label class="consent"><input type="checkbox" required> Acepto el <a href="https://elcastillodetequila.com/aviso-de-privacidad">Aviso de Privacidad</a>.</label>
       <button class="btn btn--solid" type="submit"><span>Enviar</span></button>
     </form>
@@ -296,6 +296,7 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>

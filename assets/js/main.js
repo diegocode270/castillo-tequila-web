@@ -2,6 +2,13 @@
 (function () {
   "use strict";
 
+  /* ---- Supabase ---- */
+  var SUPA_URL = "https://vjkeukkouhhumaagwoli.supabase.co";
+  var SUPA_KEY = "sb_publishable_AywGr8b8-Km5cbdnHYBZFg_8aX6tiQE";
+  var db = (typeof supabase !== "undefined" && supabase.createClient)
+    ? supabase.createClient(SUPA_URL, SUPA_KEY)
+    : null;
+
   /* ---- Nav scroll state ---- */
   var nav = document.querySelector(".nav");
   function onScroll() {
@@ -115,13 +122,35 @@
     }
   }
 
-  /* ---- Formularios (demo) ---- */
+  /* ---- Formularios + Supabase ---- */
   document.querySelectorAll("form[data-demo]").forEach(function (f) {
     f.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var btn = f.querySelector("[type=submit]");
-      if (btn) { var t = btn.innerHTML; btn.innerHTML = "<span>¡Gracias! Te contactaremos pronto ✓</span>"; btn.disabled = true;
-        setTimeout(function(){ btn.innerHTML = t; btn.disabled = false; f.reset(); }, 3500); }
+      var originalHTML = btn ? btn.innerHTML : "";
+
+      function showSuccess() {
+        if (btn) {
+          btn.innerHTML = "<span>¡Gracias! Te contactaremos pronto ✓</span>";
+          btn.disabled = true;
+          setTimeout(function () { btn.innerHTML = originalHTML; btn.disabled = false; f.reset(); }, 3500);
+        }
+      }
+
+      var table = f.getAttribute("data-table");
+      if (db && table) {
+        var payload = {};
+        f.querySelectorAll("input[name], select[name], textarea[name]").forEach(function (el) {
+          if (el.type === "checkbox") return;
+          payload[el.name] = el.type === "number" ? (parseInt(el.value, 10) || 0) : el.value.trim();
+        });
+        db.from(table).insert([payload]).then(function (res) {
+          if (res.error) console.warn("[Supabase]", res.error.message);
+          showSuccess();
+        });
+      } else {
+        showSuccess();
+      }
     });
   });
 

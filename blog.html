@@ -62,8 +62,8 @@
     <span class="eyebrow center">Newsletter</span>
     <h2 class="h-xl">Únete a nuestra comunidad</h2>
     <p class="lead" style="margin-inline:auto">Recibe historias del agave, eventos y promociones exclusivas.</p>
-    <form class="flex-center" data-demo style="margin-top:1rem;max-width:520px;margin-inline:auto;width:100%">
-      <input class="field" type="email" required placeholder="Tu correo electrónico" style="flex:1;min-width:220px;background:var(--negro);border:1px solid rgba(201,162,75,.3);padding:.95em 1.1em;color:var(--crema)">
+    <form class="flex-center" data-demo data-table="suscriptores" style="margin-top:1rem;max-width:520px;margin-inline:auto;width:100%">
+      <input class="field" name="correo" type="email" required placeholder="Tu correo electrónico" style="flex:1;min-width:220px;background:var(--negro);border:1px solid rgba(201,162,75,.3);padding:.95em 1.1em;color:var(--crema)">
       <button class="btn btn--gold" type="submit"><span>Suscribirme</span></button>
     </form>
   </div>
@@ -77,6 +77,7 @@
   </div>
   <div class="wrap footer__bar"><span>© <span data-year>2026</span> El Castillo de Tequila. Todos los derechos reservados.</span><span style="display:flex;gap:18px"><a href="https://elcastillodetequila.com/aviso-de-privacidad">Aviso de Privacidad</a><a href="https://elcastillodetequila.com/terminos-y-condiciones">Términos y Condiciones</a></span><span>Beba con moderación · +18</span></div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>
