@@ -156,4 +156,66 @@
 
   /* ---- Año dinámico ---- */
   document.querySelectorAll("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });
+
+  /* ---- Catálogo dinámico de productos desde Supabase ---- */
+  function escHtml(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function renderVariantes(str) {
+    if (!str) return "";
+    return '<div class="variants">' + String(str).split("·").map(function (v) {
+      return "<span>" + escHtml(v.trim()) + "</span>";
+    }).join("") + "</div>";
+  }
+  function renderPrecio(p, cls) {
+    var base = Number(p.precio || 0).toLocaleString("es-MX");
+    if (p.precio_descuento) {
+      var desc = Number(p.precio_descuento).toLocaleString("es-MX");
+      return '<div class="' + cls + '"><s class="precio-tachado">$' + base + '</s>&nbsp;<strong class="precio-oferta">$' + desc + " MXN</strong></div>";
+    }
+    return '<div class="' + cls + '">Desde $' + base + " MXN</div>";
+  }
+  function renderBottleCard(p, i) {
+    var delays = ["", " d1", " d2", " d3", " d4"];
+    var imgAttr = p.imagen_style ? ' style="' + escHtml(p.imagen_style) + '"' : "";
+    return '<div class="bottle-card reveal' + (delays[Math.min(i, 4)] || "") + '">' +
+      '<img loading="lazy" src="' + escHtml(p.imagen_url || "") + '" alt="' + escHtml(p.nombre) + '"' + imgAttr + ">" +
+      '<div class="tag">' + escHtml(p.tag || "") + "</div>" +
+      '<h3 class="h-md" style="margin:.3em 0">' + escHtml(p.nombre) + "</h3>" +
+      '<p class="muted" style="font-size:.9rem">' + escHtml(p.descripcion || "") + "</p>" +
+      renderPrecio(p, "price") +
+      renderVariantes(p.variantes) +
+      "</div>";
+  }
+  function renderShopCard(p, i) {
+    var delays = ["", " d1", " d2", " d3"];
+    var imgAttr = p.imagen_style ? ' style="' + escHtml(p.imagen_style) + '"' : "";
+    return '<div class="shop-card reveal' + (delays[Math.min(i, 3)] || "") + '">' +
+      '<div class="shop-card__img"><img loading="lazy" src="' + escHtml(p.imagen_url || "") + '" alt="' + escHtml(p.nombre) + '"' + imgAttr + "></div>" +
+      '<div class="tag">' + escHtml(p.tag || "") + "</div>" +
+      "<h3>" + escHtml(p.nombre) + "</h3>" +
+      renderPrecio(p, "price") +
+      '<div class="mt-s"><a class="btn btn--ghost" href="tienda.html" style="padding:.85em 1.8em"><span>Ver en tienda</span><span class="btn-arrow">→</span></a></div>' +
+      "</div>";
+  }
+
+  var bottleGrid = document.getElementById("productos-grid");
+  var shopGrid   = document.getElementById("tienda-grid");
+  if (db && (bottleGrid || shopGrid)) {
+    var skel = "<div class='skel-card'></div><div class='skel-card'></div><div class='skel-card'></div><div class='skel-card'></div>";
+    if (bottleGrid) bottleGrid.innerHTML = skel;
+    if (shopGrid)   shopGrid.innerHTML   = skel;
+    db.from("productos").select("*").eq("activo", true).order("orden").then(function (res) {
+      if (res.error) { console.warn("[Supabase productos]", res.error.message); return; }
+      var lista = res.data || [];
+      if (bottleGrid) {
+        bottleGrid.innerHTML = lista.map(renderBottleCard).join("");
+        bottleGrid.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+      }
+      if (shopGrid) {
+        shopGrid.innerHTML = lista.map(renderShopCard).join("");
+        shopGrid.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+      }
+    });
+  }
 })();
