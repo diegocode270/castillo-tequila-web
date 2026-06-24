@@ -108,7 +108,9 @@ em,.italic{font-style:italic;color:var(--ambar)}
 .btn--solid span{position:relative;z-index:1}
 .btn--ghost{border:1px solid rgba(33,28,22,.28);color:var(--carbon)}
 .btn--ghost:hover{border-color:var(--ambar);color:var(--ambar);transform:translateY(-2px)}
-.btn--gold{background:linear-gradient(120deg,var(--oro),var(--oro-claro));color:var(--negro)}
+.btn--gold{background:linear-gradient(120deg,var(--oro),var(--oro-claro));color:var(--negro);overflow:hidden}
+.btn--gold::before{content:"";position:absolute;top:0;left:-120%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);animation:btn-shimmer 3.8s ease-in-out infinite;z-index:1;pointer-events:none}
+.btn--gold span,.btn--gold .btn-arrow{position:relative;z-index:2}
 .btn--gold:hover{transform:translateY(-3px);box-shadow:0 16px 30px -12px rgba(201,162,75,.6)}
 .btn-arrow{transition:transform .4s var(--ease)}
 .btn:hover .btn-arrow{transform:translateX(5px)}
@@ -173,7 +175,7 @@ em,.italic{font-style:italic;color:var(--ambar)}
   position:fixed;inset:0;z-index:100;
   background:linear-gradient(160deg,var(--negro),var(--negro-3));
   display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.2rem;
-  transform:translateY(-100%);transition:transform .6s var(--ease);
+  transform:translateY(-100%);transition:transform .55s cubic-bezier(.77,0,.175,1);
 }
 .mobile-menu.open{transform:translateY(0)}
 .mobile-menu a{font-family:var(--serif);font-size:2rem;color:var(--crema)}
@@ -230,11 +232,12 @@ em,.italic{font-style:italic;color:var(--ambar)}
 .bottle-card::before{content:"";position:absolute;left:50%;top:0;width:200%;height:200%;
   background:radial-gradient(circle,rgba(200,118,31,.16),transparent 60%);
   transform:translate(-50%,-60%) scale(0);transition:transform .8s var(--ease)}
-.bottle-card:hover{transform:translateY(-10px);border-color:rgba(201,162,75,.5)}
+.bottle-card:hover{transform:translateY(-12px) scale(1.01);border-color:rgba(201,162,75,.55);box-shadow:0 28px 60px -20px rgba(200,118,31,.22)}
 .bottle-card:hover::before{transform:translate(-50%,-40%) scale(1)}
 .bottle-card img{height:330px;width:auto;margin:0 auto 26px;object-fit:contain;position:relative;
-  filter:drop-shadow(0 30px 30px rgba(0,0,0,.6));transition:transform .7s var(--ease)}
-.bottle-card:hover img{transform:translateY(-8px) scale(1.04)}
+  filter:drop-shadow(0 30px 30px rgba(0,0,0,.6));
+  animation:bottle-spin 12s linear infinite;will-change:transform}
+.bottle-card:hover img{animation-play-state:paused}
 .bottle-card .tag{font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ambar-claro)}
 .bottle-card .price{font-family:var(--serif);font-size:1.6rem;color:var(--ambar);margin-top:.3em}
 .variants{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
@@ -244,7 +247,7 @@ em,.italic{font-style:italic;color:var(--ambar)}
 .brand-row{display:grid;gap:clamp(24px,4vw,70px);align-items:center;padding-block:clamp(40px,6vw,80px)}
 @media(min-width:900px){.brand-row{grid-template-columns:1fr 1fr}.brand-row--rev .brand-row__media{order:-1}}
 .brand-row__media{position:relative;display:flex;justify-content:center}
-.brand-row__media img{max-height:560px;width:auto;filter:drop-shadow(0 40px 50px rgba(0,0,0,.7))}
+.brand-row__media img{max-height:560px;width:auto;filter:drop-shadow(0 40px 50px rgba(0,0,0,.7));animation:bottle-spin 16s linear infinite;will-change:transform}
 .brand-logo{height:70px;width:auto;object-fit:contain;margin-bottom:1.4rem;filter:brightness(0) invert(1)}
 
 /* ============ Galería ============ */
@@ -310,8 +313,8 @@ em,.italic{font-style:italic;color:var(--ambar)}
 .shop-card{background:#f5efe3;border:1px solid rgba(200,118,31,.15);overflow:hidden;transition:transform .5s var(--ease),border-color .5s;text-align:center;padding-bottom:26px}
 .shop-card:hover{transform:translateY(-8px);border-color:rgba(201,162,75,.45)}
 .shop-card__img{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,rgba(200,118,31,.12),transparent 65%);padding:24px}
-.shop-card__img img{height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 20px 24px rgba(0,0,0,.6));transition:transform .6s var(--ease)}
-.shop-card:hover .shop-card__img img{transform:scale(1.06) translateY(-4px)}
+.shop-card__img img{height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 20px 24px rgba(0,0,0,.6));animation:bottle-spin 12s linear infinite;will-change:transform}
+.shop-card:hover .shop-card__img img{animation-play-state:paused}
 .shop-card .tag{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ambar-claro)}
 .shop-card h3{font-size:1.25rem;margin:.3em 0}
 .shop-card .price{font-family:var(--serif);font-size:1.35rem;color:var(--ambar)}
@@ -351,12 +354,13 @@ em,.italic{font-style:italic;color:var(--ambar)}
 .gate__btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
 
 /* ============ Animaciones scroll ============ */
-.reveal{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.reveal{opacity:0;transform:translateY(48px) scale(.97);transition:opacity .95s var(--ease),transform .95s var(--ease);will-change:transform,opacity}
 .reveal.in{opacity:1;transform:none}
-.reveal.d1{transition-delay:.12s}
-.reveal.d2{transition-delay:.24s}
-.reveal.d3{transition-delay:.36s}
-.reveal-x{opacity:0;transform:translateX(-50px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.reveal.d1{transition-delay:.15s}
+.reveal.d2{transition-delay:.30s}
+.reveal.d3{transition-delay:.45s}
+.reveal.d4{transition-delay:.60s}
+.reveal-x{opacity:0;transform:translateX(-64px);transition:opacity .95s var(--ease),transform .95s var(--ease);will-change:transform,opacity}
 .reveal-x.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -386,3 +390,67 @@ em,.italic{font-style:italic;color:var(--ambar)}
 .gate{color:var(--carbon)}
 .mobile-menu{color:var(--crema)}
 .brand-logo{filter:brightness(0)}
+
+/* ============ @keyframes ============ */
+@keyframes bottle-spin{
+  from{transform:perspective(900px) rotateY(0deg)}
+  to{transform:perspective(900px) rotateY(360deg)}
+}
+@keyframes btn-shimmer{
+  0%{left:-120%}
+  45%,100%{left:200%}
+}
+
+/* ============ Mobile-first — breakpoints ============ */
+
+/* Tablet: 2 columnas para grid-3 y grid-4 */
+@media(min-width:480px) and (max-width:879px){
+  .grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Móvil ≤639px */
+@media(max-width:639px){
+
+  /* Hero — centrado y proporcional */
+  .hero__inner{text-align:center}
+  .hero .lead,.hero .h-display{margin-inline:auto}
+  .hero .eyebrow{justify-content:center}
+  .hero__actions{justify-content:center;gap:.7rem}
+  .hero__actions .btn{flex:1 1 140px;justify-content:center;min-width:0}
+  .hero__scroll{bottom:20px}
+
+  /* Interior heroes */
+  .phero{min-height:55svh}
+  .phero__inner{text-align:center;padding-bottom:clamp(28px,5vw,56px)}
+  .breadcrumb{text-align:center}
+
+  /* Bottle cards */
+  .bottle-card{padding:32px 16px}
+  .bottle-card img{height:200px}
+
+  /* Brand rows — centrar contenido */
+  .brand-row .stack{text-align:center}
+  .brand-row .variants{justify-content:center!important}
+  .brand-row .stack>div:last-child{display:flex;justify-content:center}
+  .brand-row__media img{max-height:280px}
+
+  /* Trust bar */
+  .trustbar .wrap{gap:clamp(12px,5vw,36px)}
+  .trust__num{font-size:clamp(1.6rem,7vw,2.2rem)}
+
+  /* Formularios — botón submit full-width */
+  .form>[type=submit],.form .btn[type=submit]{width:100%;justify-content:center}
+
+  /* Incl layout */
+  .incl{flex-direction:column;align-items:flex-start;gap:.8rem;padding:1.2rem 0}
+
+  /* Footer bar — apila verticalmente */
+  .footer__bar{flex-direction:column;align-items:center;text-align:center;gap:8px}
+  .footer__bar>span:nth-child(2){flex-direction:column;gap:6px}
+
+  /* Menú móvil — tamaño de texto más pequeño en pantallas muy chicas */
+  .mobile-menu a{font-size:1.7rem}
+
+  /* Quote cards — altura auto en móvil */
+  .quote-card{height:auto}
+}
