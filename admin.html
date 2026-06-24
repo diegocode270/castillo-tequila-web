@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — El Castillo de Tequila</title>
+<link rel="icon" href="https://elcastillodetequila.com/wp-content/uploads/2025/09/agave-icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== Variables ===== */
+:root{
+  --negro:#0c0a07;--negro-2:#14110c;--negro-3:#1c1813;
+  --crema:#f4ecdc;--crema-2:#e7dcc4;--piedra:#b9ab92;--piedra-soft:#8c7f68;
+  --ambar:#c8761f;--ambar-claro:#e0973c;--oro:#c9a24b;--oro-claro:#e4c878;
+  --serif:"Cormorant Garamond",Georgia,serif;
+  --sans:"Jost","Helvetica Neue",Arial,sans-serif;
+  --ease:cubic-bezier(.16,.84,.44,1);
+  --sidebar:240px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--negro);color:var(--crema);font-weight:300;overflow-x:hidden;line-height:1.6}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit}
+
+/* ===== LOGIN ===== */
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(201,162,75,.14) 0%,transparent 65%),
+             linear-gradient(160deg,var(--negro),var(--negro-2));
+}
+.login-card{
+  background:var(--negro-2);border:1px solid rgba(201,162,75,.22);
+  padding:clamp(36px,6vw,56px) clamp(28px,5vw,48px);
+  width:100%;max-width:420px;
+}
+.login-logo{height:76px;margin:0 auto 1.6rem;filter:brightness(0) invert(1);opacity:.8;object-fit:contain}
+.login-eyebrow{
+  font-size:.65rem;letter-spacing:.36em;text-transform:uppercase;
+  color:var(--ambar-claro);text-align:center;margin-bottom:.5rem;
+}
+.login-title{
+  font-family:var(--serif);font-size:1.7rem;font-weight:500;
+  text-align:center;color:var(--crema);margin-bottom:2rem;
+}
+.login-field{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1rem}
+.login-field label{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--piedra)}
+.login-field input{
+  background:var(--negro);border:1px solid rgba(201,162,75,.2);
+  padding:.85em 1em;color:var(--crema);font-size:.95rem;
+  transition:border-color .3s;width:100%;
+}
+.login-field input:focus{outline:none;border-color:var(--ambar)}
+.login-btn{
+  width:100%;background:var(--ambar);color:var(--negro);
+  padding:1em;margin-top:.8rem;
+  font-size:.78rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  transition:background .3s,transform .3s;
+}
+.login-btn:hover{background:var(--ambar-claro);transform:translateY(-1px)}
+.login-error{
+  display:none;margin-top:1rem;padding:.7em 1em;text-align:center;
+  color:#e07070;font-size:.84rem;
+  background:rgba(200,80,80,.1);border:1px solid rgba(200,80,80,.22);
+}
+
+/* ===== PANEL LAYOUT ===== */
+#admin-panel{display:none;min-height:100vh}
+#admin-panel.visible{display:flex}
+
+/* ===== SIDEBAR ===== */
+.admin-sidebar{
+  width:var(--sidebar);flex:none;
+  background:var(--negro-2);border-right:1px solid rgba(201,162,75,.14);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-top{padding:28px 20px 20px}
+.admin-logo{height:52px;object-fit:contain;filter:brightness(0) invert(1);opacity:.78;display:block}
+.sidebar-divider{height:1px;background:rgba(201,162,75,.12);margin:20px 0}
+.sidebar-label{font-size:.58rem;letter-spacing:.34em;text-transform:uppercase;color:var(--piedra-soft);padding:0 20px;margin-bottom:6px}
+
+.admin-nav{display:flex;flex-direction:column}
+.admin-nav a{
+  display:flex;align-items:center;gap:.75em;
+  padding:11px 20px;color:var(--piedra);font-size:.8rem;letter-spacing:.06em;
+  transition:background .2s,color .2s;position:relative;
+}
+.admin-nav a::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--ambar);transform:scaleY(0);transition:transform .25s var(--ease);
+}
+.admin-nav a:hover{background:rgba(201,162,75,.06);color:var(--crema)}
+.admin-nav a.active{background:rgba(201,162,75,.1);color:var(--ambar-claro)}
+.admin-nav a.active::before{transform:scaleY(1)}
+.nav-icon{font-size:1em;width:1.1em;text-align:center;flex:none}
+.nav-badge{
+  margin-left:auto;font-size:.62rem;letter-spacing:.1em;
+  background:rgba(201,162,75,.18);border:1px solid rgba(201,162,75,.3);
+  color:var(--ambar-claro);padding:.2em .55em;border-radius:2px;
+  display:none;
+}
+.nav-badge.show{display:inline}
+
+.sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(201,162,75,.1)}
+.btn-logout{
+  width:100%;border:1px solid rgba(201,162,75,.22);color:var(--piedra);
+  padding:.65em 1em;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  transition:.3s;display:flex;align-items:center;justify-content:center;gap:.5em;
+}
+.btn-logout:hover{border-color:var(--ambar);color:var(--ambar-claro)}
+
+/* ===== MAIN ===== */
+.admin-main{flex:1;overflow-y:auto;background:var(--negro)}
+
+.admin-section{display:none;padding:clamp(24px,4vw,44px) clamp(20px,4vw,48px);animation:fadeIn .3s var(--ease)}
+.admin-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.section-header{
+  display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  margin-bottom:28px;padding-bottom:18px;
+  border-bottom:1px solid rgba(201,162,75,.14);
+}
+.section-header h2{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2rem);font-weight:500;color:var(--crema)}
+.section-chip{
+  font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ambar-claro);background:rgba(200,118,31,.12);
+  border:1px solid rgba(200,118,31,.28);padding:.28em .85em;
+}
+.section-refresh{
+  margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--piedra-soft);border:1px solid rgba(201,162,75,.15);padding:.4em .9em;
+  transition:.3s;cursor:pointer;
+}
+.section-refresh:hover{color:var(--ambar-claro);border-color:var(--ambar)}
+
+/* ===== TABLE ===== */
+.table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.admin-table{width:100%;border-collapse:collapse;font-size:.86rem}
+.admin-table th{
+  text-align:left;padding:10px 14px;
+  font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ambar-claro);white-space:nowrap;
+  background:rgba(201,162,75,.06);border-bottom:1px solid rgba(201,162,75,.16);
+}
+.admin-table td{
+  padding:10px 14px;border-bottom:1px solid rgba(201,162,75,.07);
+  color:var(--crema-2);vertical-align:middle;max-width:260px;
+}
+.admin-table tbody tr{transition:background .15s}
+.admin-table tbody tr:hover td{background:rgba(201,162,75,.04)}
+.td-muted{color:var(--piedra-soft);font-size:.8em}
+.td-truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.td-mono{font-family:monospace;font-size:.85em;color:var(--piedra)}
+
+/* ===== EDITABLE INPUTS ===== */
+.admin-input{
+  background:rgba(255,255,255,.04);border:1px solid rgba(201,162,75,.16);
+  padding:.45em .75em;color:var(--crema);font-size:.86rem;
+  width:100%;min-width:90px;transition:border-color .25s,background .25s;
+}
+.admin-input:focus{outline:none;border-color:var(--ambar);background:rgba(201,162,75,.06)}
+.admin-input--num{min-width:80px;text-align:right}
+
+/* Toggle */
+.toggle{display:inline-flex;align-items:center;cursor:pointer}
+.toggle input{display:none}
+.toggle__track{
+  width:36px;height:20px;border-radius:10px;position:relative;
+  background:rgba(255,255,255,.08);border:1px solid rgba(201,162,75,.18);
+  transition:background .3s,border-color .3s;flex:none;
+}
+.toggle__track::after{
+  content:"";position:absolute;width:14px;height:14px;border-radius:50%;
+  background:var(--piedra-soft);top:2px;left:2px;
+  transition:transform .3s,background .3s;
+}
+.toggle input:checked + .toggle__track{background:rgba(200,118,31,.25);border-color:var(--ambar)}
+.toggle input:checked + .toggle__track::after{transform:translateX(16px);background:var(--ambar-claro)}
+
+/* Save button */
+.btn-save{
+  background:transparent;border:1px solid rgba(201,162,75,.3);color:var(--ambar-claro);
+  padding:.42em 1.1em;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  white-space:nowrap;transition:.25s;
+}
+.btn-save:hover:not(:disabled){background:var(--ambar);color:var(--negro);border-color:var(--ambar)}
+.btn-save:disabled{opacity:.55;cursor:not-allowed}
+.btn-save.saved{color:#6dbf6d;border-color:#6dbf6d}
+.btn-save.error{color:#e07070;border-color:#e07070}
+
+/* ===== ESTADOS ===== */
+.state-box{padding:56px 20px;text-align:center;color:var(--piedra)}
+.state-box .state-icon{font-size:2rem;margin-bottom:12px}
+.state-box p{font-size:.9rem;letter-spacing:.06em}
+.state-box.error-state{color:#e07070}
+.spinner{
+  width:30px;height:30px;border:2px solid rgba(201,162,75,.14);border-top-color:var(--ambar);
+  border-radius:50%;animation:spin .75s linear infinite;margin:12px auto 0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== SUSCRIPTORES ===== */
+.sus-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.4rem}
+.sus-count{font-family:var(--serif);font-size:2.4rem;color:var(--ambar-claro);line-height:1}
+.sus-count-label{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--piedra)}
+.sus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.6rem}
+.sus-chip{
+  background:rgba(201,162,75,.07);border:1px solid rgba(201,162,75,.15);
+  padding:.6em 1em;display:flex;align-items:center;gap:.6em;font-size:.85rem;color:var(--crema-2);
+  transition:border-color .25s;
+}
+.sus-chip:hover{border-color:rgba(201,162,75,.3)}
+.sus-icon{color:var(--ambar-claro);flex:none}
+.sus-email{flex:1;word-break:break-all}
+.sus-date{font-size:.7rem;color:var(--piedra-soft);white-space:nowrap;margin-left:auto}
+
+/* ===== PRODUCTOS NOTES ===== */
+.prod-hint{
+  font-size:.76rem;color:var(--piedra-soft);margin-bottom:1rem;
+  padding:.6em 1em;border-left:2px solid rgba(201,162,75,.3);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:680px){
+  :root{--sidebar:100%}
+  #admin-panel.visible{flex-direction:column}
+  .admin-sidebar{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:12px 16px;gap:4px;align-items:center}
+  .sidebar-top{padding:0;display:flex;align-items:center;gap:12px;width:100%}
+  .admin-logo{height:34px}
+  .sidebar-divider{display:none}
+  .sidebar-label{display:none}
+  .admin-nav{flex-direction:row;flex-wrap:wrap;width:100%;gap:2px;margin-top:8px}
+  .admin-nav a{padding:7px 12px;font-size:.72rem;border-radius:2px}
+  .admin-nav a::before{display:none}
+  .admin-nav a.active{background:rgba(201,162,75,.18)}
+  .sidebar-bottom{padding:0;border:none;margin-left:auto;margin-top:0}
+  .btn-logout{width:auto;padding:.5em .9em;font-size:.65rem}
+  .admin-section{padding:18px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <img class="login-logo"
+         src="https://elcastillodetequila.com/wp-content/uploads/2025/09/logo-castillo-de-tequila-bco-2.png"
+         alt="El Castillo de Tequila">
+    <p class="login-eyebrow">Panel de Administración</p>
+    <h1 class="login-title">Bienvenido</h1>
+    <form id="login-form" novalidate>
+      <div class="login-field">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" autocomplete="username" placeholder="admin" required>
+      </div>
+      <div class="login-field">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button class="login-btn" type="submit">Ingresar</button>
+      <div class="login-error" id="login-error">Usuario o contraseña incorrectos.</div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="admin-panel">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-top">
+      <img class="admin-logo"
+           src="https://elcastillodetequila.com/wp-content/uploads/2025/09/logo-castillo-de-tequila-bco-2.png"
+           alt="El Castillo de Tequila">
+    </div>
+    <div class="sidebar-divider"></div>
+    <p class="sidebar-label">Gestión</p>
+    <nav class="admin-nav">
+      <a href="#" data-section="productos" class="active">
+        <span class="nav-icon">🍾</span> Productos
+        <span class="nav-badge" id="badge-productos"></span>
+      </a>
+      <a href="#" data-section="reservaciones">
+        <span class="nav-icon">📅</span> Reservaciones
+        <span class="nav-badge" id="badge-reservaciones"></span>
+      </a>
+      <a href="#" data-section="contactos">
+        <span class="nav-icon">✉️</span> Contactos
+        <span class="nav-badge" id="badge-contactos"></span>
+      </a>
+      <a href="#" data-section="suscriptores">
+        <span class="nav-icon">📬</span> Suscriptores
+        <span class="nav-badge" id="badge-suscriptores"></span>
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" id="btn-logout">
+        <span>⟵</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-main">
+
+    <!-- PRODUCTOS -->
+    <section id="section-productos" class="admin-section active">
+      <div class="section-header">
+        <h2>Productos</h2>
+        <span class="section-chip" id="chip-productos">Cargando…</span>
+        <button class="section-refresh" data-reload="productos">↺ Recargar</button>
+      </div>
+      <p class="prod-hint">Edita directamente los campos y presiona <strong>Guardar</strong> en cada fila. Si precio_descuento queda vacío se elimina el descuento.</p>
+      <div class="table-wrapper" id="tbl-productos">
+        <div class="state-box"><div class="state-icon">⏳</div><p>Cargando productos…</p><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- RESERVACIONES -->
+    <section id="section-reservaciones" class="admin-section">
+      <div class="section-header">
+        <h2>Reservaciones</h2>
+        <span class="section-chip" id="chip-reservaciones">—</span>
+        <button class="section-refresh" data-reload="reservaciones">↺ Recargar</button>
+      </div>
+      <div class="table-wrapper" id="tbl-reservaciones">
+        <div class="state-box"><div class="state-icon">⏳</div><p>Cargando…</p><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- CONTACTOS -->
+    <section id="section-contactos" class="admin-section">
+      <div class="section-header">
+        <h2>Contactos</h2>
+        <span class="section-chip" id="chip-contactos">—</span>
+        <button class="section-refresh" data-reload="contactos">↺ Recargar</button>
+      </div>
+      <div class="table-wrapper" id="tbl-contactos">
+        <div class="state-box"><div class="state-icon">⏳</div><p>Cargando…</p><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- SUSCRIPTORES -->
+    <section id="section-suscriptores" class="admin-section">
+      <div class="section-header">
+        <h2>Suscriptores</h2>
+        <span class="section-chip" id="chip-suscriptores">—</span>
+        <button class="section-refresh" data-reload="suscriptores">↺ Recargar</button>
+      </div>
+      <div id="tbl-suscriptores">
+        <div class="state-box"><div class="state-icon">⏳</div><p>Cargando…</p><div class="spinner"></div></div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /admin-panel -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---- Config ---- */
+  var ADMIN_USER = "admin";
+  var ADMIN_PASS = "castillo2024";
+  var SUPA_URL   = "https://vjkeukkouhhumaagwoli.supabase.co";
+  var SUPA_KEY   = "sb_publishable_AywGr8b8-Km5cbdnHYBZFg_8aX6tiQE";
+  var db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  /* ---- Helpers ---- */
+  function esc(s) {
+    return String(s || "")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function fmtDate(str) {
+    if (!str) return "—";
+    try {
+      var d = new Date(str);
+      return d.toLocaleDateString("es-MX", { day:"2-digit", month:"short", year:"numeric" });
+    } catch(e) { return str; }
+  }
+  function fmtDateTime(str) {
+    if (!str) return "—";
+    try {
+      var d = new Date(str);
+      return d.toLocaleDateString("es-MX", { day:"2-digit", month:"short", year:"numeric" })
+           + " " + d.toLocaleTimeString("es-MX", { hour:"2-digit", minute:"2-digit" });
+    } catch(e) { return str; }
+  }
+  function trunc(s, n) {
+    s = String(s || "");
+    return s.length > n ? s.slice(0, n) + "…" : s;
+  }
+  function badge(id, n) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = n;
+    el.classList.add("show");
+  }
+  function chip(id, n, unit) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = n + " " + (unit || "registros");
+  }
+
+  /* ---- Auth ---- */
+  var SESSION_KEY = "ecdt_admin_ok";
+
+  function checkSession() {
+    try { return sessionStorage.getItem(SESSION_KEY) === "1"; } catch(e) { return false; }
+  }
+  function saveSession() {
+    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch(e) {}
+  }
+  function clearSession() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch(e) {}
+  }
+
+  /* ---- Login ---- */
+  var loginScreen = document.getElementById("login-screen");
+  var adminPanel  = document.getElementById("admin-panel");
+  var loginForm   = document.getElementById("login-form");
+  var loginError  = document.getElementById("login-error");
+
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var user = document.getElementById("username").value.trim();
+    var pass = document.getElementById("password").value;
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      loginError.style.display = "none";
+      saveSession();
+      showPanel();
+    } else {
+      loginError.style.display = "block";
+      document.getElementById("password").value = "";
+      document.getElementById("password").focus();
+    }
+  });
+
+  /* ---- Logout ---- */
+  document.getElementById("btn-logout").addEventListener("click", function () {
+    clearSession();
+    location.reload();
+  });
+
+  /* ---- Panel ---- */
+  function showPanel() {
+    loginScreen.hidden = true;
+    adminPanel.classList.add("visible");
+    loadSection("productos");
+  }
+
+  if (checkSession()) { showPanel(); }
+
+  /* ---- Navigation ---- */
+  var loaded = {};
+
+  document.querySelectorAll(".admin-nav a[data-section]").forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      var sec = this.dataset.section;
+
+      document.querySelectorAll(".admin-nav a").forEach(function (a) { a.classList.remove("active"); });
+      this.classList.add("active");
+
+      document.querySelectorAll(".admin-section").forEach(function (s) { s.classList.remove("active"); });
+      document.getElementById("section-" + sec).classList.add("active");
+
+      loadSection(sec);
+    });
+  });
+
+  /* ---- Reload buttons ---- */
+  document.querySelectorAll(".section-refresh[data-reload]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var sec = this.dataset.reload;
+      delete loaded[sec];
+      loadSection(sec);
+    });
+  });
+
+  /* ---- Load dispatcher ---- */
+  function loadSection(name) {
+    if (loaded[name]) return;
+    loaded[name] = true;
+    switch (name) {
+      case "productos":    loadProductos();    break;
+      case "reservaciones": loadReservaciones(); break;
+      case "contactos":    loadContactos();    break;
+      case "suscriptores": loadSuscriptores(); break;
+    }
+  }
+
+  /* ===================== PRODUCTOS ===================== */
+  function loadProductos() {
+    var container = document.getElementById("tbl-productos");
+    container.innerHTML = stateHtml("⏳", "Cargando productos…", true);
+
+    db.from("productos").select("*").order("orden").then(function (res) {
+      if (res.error) {
+        container.innerHTML = stateHtml("⚠️", "Error: " + esc(res.error.message), false, true);
+        return;
+      }
+      var data = res.data || [];
+      chip("chip-productos", data.length, data.length === 1 ? "producto" : "productos");
+      badge("badge-productos", data.length);
+
+      if (data.length === 0) {
+        container.innerHTML = stateHtml("🍾", "No hay productos.");
+        return;
+      }
+
+      var html = '<table class="admin-table">' +
+        "<thead><tr>" +
+        "<th>#</th>" +
+        "<th>Nombre</th>" +
+        "<th>Precio MXN</th>" +
+        "<th>Precio c/descuento</th>" +
+        "<th>Activo</th>" +
+        "<th></th>" +
+        "</tr></thead><tbody>";
+
+      data.forEach(function (p) {
+        html += '<tr data-id="' + p.id + '">' +
+          '<td class="td-muted td-mono">' + p.id + "</td>" +
+          '<td><input class="admin-input" data-field="nombre" value="' + esc(p.nombre) + '"></td>' +
+          '<td><input class="admin-input admin-input--num" data-field="precio" type="number" min="0" value="' + (p.precio !== null ? p.precio : "") + '"></td>' +
+          '<td><input class="admin-input admin-input--num" data-field="precio_descuento" type="number" min="0" placeholder="— sin descuento" value="' + (p.precio_descuento !== null && p.precio_descuento !== undefined ? p.precio_descuento : "") + '"></td>' +
+          '<td><label class="toggle"><input type="checkbox" data-field="activo"' + (p.activo ? " checked" : "") + '><span class="toggle__track"></span></label></td>' +
+          '<td><button class="btn-save" data-id="' + p.id + '">Guardar</button></td>' +
+          "</tr>";
+      });
+
+      html += "</tbody></table>";
+      container.innerHTML = html;
+
+      /* Save handlers */
+      container.querySelectorAll(".btn-save").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id  = this.dataset.id;
+          var row = container.querySelector('tr[data-id="' + id + '"]');
+          var payload = {};
+
+          row.querySelectorAll("[data-field]").forEach(function (el) {
+            var f = el.dataset.field;
+            if (el.type === "checkbox") {
+              payload[f] = el.checked;
+            } else if (el.type === "number") {
+              payload[f] = el.value !== "" ? parseFloat(el.value) : null;
+            } else {
+              payload[f] = el.value.trim();
+            }
+          });
+
+          var b = this;
+          b.textContent = "Guardando…";
+          b.disabled = true;
+          b.className = "btn-save";
+
+          db.from("productos").update(payload).eq("id", id).then(function (res2) {
+            if (res2.error) {
+              b.textContent = "✗ Error";
+              b.className = "btn-save error";
+            } else {
+              b.textContent = "✓ Guardado";
+              b.className = "btn-save saved";
+            }
+            setTimeout(function () {
+              b.textContent = "Guardar";
+              b.className = "btn-save";
+              b.disabled = false;
+            }, 1800);
+          });
+        });
+      });
+    });
+  }
+
+  /* ===================== RESERVACIONES ===================== */
+  function loadReservaciones() {
+    var container = document.getElementById("tbl-reservaciones");
+    container.innerHTML = stateHtml("⏳", "Cargando reservaciones…", true);
+
+    db.from("reservaciones").select("*").order("created_at", { ascending: false }).then(function (res) {
+      if (res.error) {
+        container.innerHTML = stateHtml("⚠️", "Error: " + esc(res.error.message), false, true);
+        return;
+      }
+      var data = res.data || [];
+      chip("chip-reservaciones", data.length, data.length === 1 ? "reservación" : "reservaciones");
+      badge("badge-reservaciones", data.length);
+
+      if (data.length === 0) {
+        container.innerHTML = stateHtml("📅", "No hay reservaciones aún.");
+        return;
+      }
+
+      var html = '<table class="admin-table"><thead><tr>' +
+        "<th>Nombre</th><th>Teléfono</th><th>Correo</th>" +
+        "<th>Fecha</th><th>Horario</th><th>Personas</th>" +
+        "<th>Tipo</th><th>Comentarios</th><th>Recibido</th>" +
+        "</tr></thead><tbody>";
+
+      data.forEach(function (r) {
+        html += "<tr>" +
+          '<td><strong>' + esc(r.nombre || "—") + "</strong></td>" +
+          '<td class="td-mono">' + esc(r.telefono || "—") + "</td>" +
+          '<td class="td-mono">' + esc(r.correo || "—") + "</td>" +
+          "<td>" + esc(fmtDate(r.fecha)) + "</td>" +
+          "<td>" + esc(r.horario || "—") + "</td>" +
+          '<td style="text-align:center">' + esc(r.personas || "—") + "</td>" +
+          '<td class="td-muted">' + esc(r.tipo || "—") + "</td>" +
+          '<td class="td-truncate" title="' + esc(r.comentarios || "") + '">' + esc(trunc(r.comentarios, 60)) + "</td>" +
+          '<td class="td-muted">' + fmtDateTime(r.created_at) + "</td>" +
+          "</tr>";
+      });
+
+      html += "</tbody></table>";
+      container.innerHTML = html;
+    });
+  }
+
+  /* ===================== CONTACTOS ===================== */
+  function loadContactos() {
+    var container = document.getElementById("tbl-contactos");
+    container.innerHTML = stateHtml("⏳", "Cargando mensajes…", true);
+
+    db.from("contactos").select("*").order("created_at", { ascending: false }).then(function (res) {
+      if (res.error) {
+        container.innerHTML = stateHtml("⚠️", "Error: " + esc(res.error.message), false, true);
+        return;
+      }
+      var data = res.data || [];
+      chip("chip-contactos", data.length, data.length === 1 ? "mensaje" : "mensajes");
+      badge("badge-contactos", data.length);
+
+      if (data.length === 0) {
+        container.innerHTML = stateHtml("✉️", "No hay mensajes de contacto aún.");
+        return;
+      }
+
+      var html = '<table class="admin-table"><thead><tr>' +
+        "<th>Nombre</th><th>Teléfono</th><th>Correo</th>" +
+        "<th>Asunto</th><th>Mensaje</th><th>Recibido</th>" +
+        "</tr></thead><tbody>";
+
+      data.forEach(function (c) {
+        html += "<tr>" +
+          '<td><strong>' + esc(c.nombre || "—") + "</strong></td>" +
+          '<td class="td-mono">' + esc(c.telefono || "—") + "</td>" +
+          '<td class="td-mono">' + esc(c.correo || "—") + "</td>" +
+          '<td class="td-muted">' + esc(c.asunto || "—") + "</td>" +
+          '<td class="td-truncate" title="' + esc(c.mensaje || "") + '">' + esc(trunc(c.mensaje, 80)) + "</td>" +
+          '<td class="td-muted">' + fmtDateTime(c.created_at) + "</td>" +
+          "</tr>";
+      });
+
+      html += "</tbody></table>";
+      container.innerHTML = html;
+    });
+  }
+
+  /* ===================== SUSCRIPTORES ===================== */
+  function loadSuscriptores() {
+    var container = document.getElementById("tbl-suscriptores");
+    container.innerHTML = stateHtml("⏳", "Cargando suscriptores…", true);
+
+    db.from("suscriptores").select("*").order("created_at", { ascending: false }).then(function (res) {
+      if (res.error) {
+        container.innerHTML = stateHtml("⚠️", "Error: " + esc(res.error.message), false, true);
+        return;
+      }
+      var data = res.data || [];
+      chip("chip-suscriptores", data.length, data.length === 1 ? "suscriptor" : "suscriptores");
+      badge("badge-suscriptores", data.length);
+
+      if (data.length === 0) {
+        container.innerHTML = stateHtml("📬", "No hay suscriptores aún.");
+        return;
+      }
+
+      var html = '<div class="sus-header">' +
+        '<span class="sus-count">' + data.length + "</span>" +
+        '<span class="sus-count-label">suscriptores</span>' +
+        "</div>" +
+        '<div class="sus-grid">';
+
+      data.forEach(function (s) {
+        html += '<div class="sus-chip">' +
+          '<span class="sus-icon">✉</span>' +
+          '<span class="sus-email">' + esc(s.correo) + "</span>" +
+          '<span class="sus-date">' + fmtDate(s.created_at) + "</span>" +
+          "</div>";
+      });
+
+      html += "</div>";
+      container.innerHTML = html;
+    });
+  }
+
+  /* ---- State HTML helper ---- */
+  function stateHtml(icon, msg, spinner, isError) {
+    return '<div class="state-box' + (isError ? " error-state" : "") + '">' +
+      '<div class="state-icon">' + icon + "</div>" +
+      "<p>" + esc(msg) + "</p>" +
+      (spinner ? '<div class="spinner"></div>' : "") +
+      "</div>";
+  }
+
+})();
+</script>
+</body>
+</html>
