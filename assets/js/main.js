@@ -175,6 +175,13 @@
     }
     return '<div class="' + cls + '">Desde $' + base + " MXN</div>";
   }
+  function cartDataAttr(p) {
+    return escHtml(JSON.stringify({
+      id: p.id, nombre: p.nombre, precio: p.precio,
+      precio_descuento: p.precio_descuento,
+      imagen_url: p.imagen_url, imagen_style: p.imagen_style
+    }));
+  }
   function renderBottleCard(p, i) {
     var delays = ["", " d1", " d2", " d3", " d4"];
     var imgAttr = p.imagen_style ? ' style="' + escHtml(p.imagen_style) + '"' : "";
@@ -185,6 +192,7 @@
       '<p class="muted" style="font-size:.9rem">' + escHtml(p.descripcion || "") + "</p>" +
       renderPrecio(p, "price") +
       renderVariantes(p.variantes) +
+      '<div class="mt-s"><button class="btn btn--solid cart-add-btn" data-product="' + cartDataAttr(p) + '" aria-label="Agregar ' + escHtml(p.nombre) + ' al carrito"><span>Agregar al carrito</span></button></div>' +
       "</div>";
   }
   function renderShopCard(p, i) {
@@ -195,7 +203,7 @@
       '<div class="tag">' + escHtml(p.tag || "") + "</div>" +
       "<h3>" + escHtml(p.nombre) + "</h3>" +
       renderPrecio(p, "price") +
-      '<div class="mt-s"><a class="btn btn--ghost" href="tienda.html" style="padding:.85em 1.8em"><span>Ver en tienda</span><span class="btn-arrow">→</span></a></div>' +
+      '<div class="mt-s"><button class="btn btn--solid cart-add-btn" data-product="' + cartDataAttr(p) + '" aria-label="Agregar ' + escHtml(p.nombre) + ' al carrito"><span>Agregar al carrito</span></button></div>' +
       "</div>";
   }
 
