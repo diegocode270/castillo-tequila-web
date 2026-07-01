@@ -613,7 +613,7 @@ body.cart-open{overflow:hidden}
 
 /* Botón Agregar al carrito */
 .cart-add-btn{
-  width:100%;justify-content:center;
+  justify-content:center;
   transition:color .35s var(--ease),transform .25s var(--ease),background .35s var(--ease),box-shadow .3s var(--ease);
 }
 .cart-add-btn.cart-adding{

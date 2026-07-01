@@ -192,7 +192,7 @@
       '<p class="muted" style="font-size:.9rem">' + escHtml(p.descripcion || "") + "</p>" +
       renderPrecio(p, "price") +
       renderVariantes(p.variantes) +
-      '<div class="mt-s"><button class="btn btn--solid cart-add-btn" data-product="' + cartDataAttr(p) + '" aria-label="Agregar ' + escHtml(p.nombre) + ' al carrito"><span>Agregar al carrito</span></button></div>' +
+      '<div class="mt-s"><button class="btn btn--solid cart-add-btn" style="width:100%" data-product="' + cartDataAttr(p) + '" aria-label="Agregar ' + escHtml(p.nombre) + ' al carrito"><span>Agregar al carrito</span></button></div>' +
       "</div>";
   }
   function renderShopCard(p, i) {
@@ -203,7 +203,7 @@
       '<div class="tag">' + escHtml(p.tag || "") + "</div>" +
       "<h3>" + escHtml(p.nombre) + "</h3>" +
       renderPrecio(p, "price") +
-      '<div class="mt-s"><button class="btn btn--solid cart-add-btn" data-product="' + cartDataAttr(p) + '" aria-label="Agregar ' + escHtml(p.nombre) + ' al carrito"><span>Agregar al carrito</span></button></div>' +
+      '<div class="mt-s"><button class="btn btn--solid cart-add-btn" style="width:100%" data-product="' + cartDataAttr(p) + '" aria-label="Agregar ' + escHtml(p.nombre) + ' al carrito"><span>Agregar al carrito</span></button></div>' +
       "</div>";
   }
 
@@ -224,6 +224,27 @@
         shopGrid.innerHTML = lista.map(renderShopCard).join("");
         shopGrid.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
       }
+    });
+  }
+
+  /* Botones "Agregar al carrito" en páginas de marca (carga lazy desde Supabase) */
+  var lazyBtns = document.querySelectorAll(".cart-add-lazy");
+  if (db && lazyBtns.length) {
+    db.from("productos").select("*").eq("activo", true).then(function (res) {
+      if (res.error) return;
+      var map = {};
+      (res.data || []).forEach(function (p) { map[(p.nombre || "").toLowerCase()] = p; });
+      lazyBtns.forEach(function (btn) {
+        var p = map[(btn.dataset.nombre || "").toLowerCase()];
+        if (!p) return;
+        btn.dataset.product = JSON.stringify({
+          id: p.id, nombre: p.nombre, precio: p.precio,
+          precio_descuento: p.precio_descuento,
+          imagen_url: p.imagen_url, imagen_style: p.imagen_style
+        });
+        btn.classList.add("cart-add-btn");
+        btn.classList.remove("cart-add-lazy");
+      });
     });
   }
 })();
